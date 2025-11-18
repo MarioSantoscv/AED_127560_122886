@@ -93,11 +93,13 @@ static void check(int condition, const char* failmsg) {
 void ImageInit(void) {  ///
   InstrCalibrate();
   InstrName[0] = "pixmem";  // InstrCount[0] will count pixel array acesses
+  InstrName[1] = "pixcmp";  // InstrCount[1] will count pixel-to-pixel RGB comparisons
   // Name other counters here...
 }
 
 // Macros to simplify accessing instrumentation counters:
 #define PIXMEM InstrCount[0]
+#define PIXCMP InstrCount[1] //pixel comparisons counter
 // Add more macros here...
 
 // TIP: Search for PIXMEM or InstrCount to see where it is incremented!
@@ -587,6 +589,8 @@ int ImageIsEqual(const Image img1, const Image img2) {
 
       rgb_t c1 = img1->LUT[l1];
       rgb_t c2 = img2->LUT[l2];
+
+      PIXCMP++; //count comparison
 
       if (c1 != c2) {
         return 0;  // different RGB at this pixel
