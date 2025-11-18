@@ -14,7 +14,7 @@ int main(void) {
   ImageInit(); // calibra e define nomes dos contadores (executar apenas uma vez)
 
   // Exemplos de tamanhos a testar
-  const int sizes[][2] = { {10,10}, {50,50}, {100,100} };
+  const int sizes[][2] = { {10,10}, {50,50}, {100,100}, {150,150} };
 
   for (int s = 0; s < (int)(sizeof(sizes)/sizeof(sizes[0])); ++s) {
     int w = sizes[s][0];
