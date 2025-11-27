@@ -28,6 +28,14 @@ int main(int argc, char* argv[]) {
   ImageInit();
 
   // Creating and displaying some images
+  printf("Test equal\n");
+  Image a = ImageLoadPPM("maze.pbm_rec.ppm");
+  Image b = ImageLoadPPM("maze.pbm_rec1.ppm");
+  if (ImageIsEqual(a, b)) {
+    printf("Images are equal\n");
+  } else {
+    printf("Images are different\n");
+  }
 
   printf("1) ImageCreate\n");
   Image white_image = ImageCreate(100, 100);
