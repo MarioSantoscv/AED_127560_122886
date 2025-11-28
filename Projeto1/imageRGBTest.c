@@ -37,6 +37,7 @@ int main(int argc, char* argv[]) {
     printf("Images are different\n");
   }
 
+
   printf("1) ImageCreate\n");
   Image white_image = ImageCreate(100, 100);
   // ImageRAWPrint(white_image);

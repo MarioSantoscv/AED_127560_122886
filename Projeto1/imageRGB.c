@@ -624,9 +624,12 @@ int ImageIsDifferent(const Image img1, const Image img2) {
 /// (The caller is responsible for destroying the returned image!)
 Image ImageRotate90CW(const Image img) {
   assert(img != NULL);
+
+  //get the original dimensions
   uint32 old_w =img->width;
   uint32 old_h =img->height;
   
+  //create new image with same dimensions(to hold the rotated image)
   Image result = ImageCreate(old_w, old_h);
 
   //copy colors (from ImageCopy)
@@ -635,7 +638,7 @@ Image ImageRotate90CW(const Image img) {
     result->LUT[i] = img->LUT[i];
   }
 
-  //pixels start at (i,j) finish at (j,(old_h-1)-i) 
+  //pixels start at (i,j) finish at (j,(old_h-1)-i) since its a 90 degree rotation
   for(uint32 i = 0; i < old_h; i++){
     for (uint32 j = 0; j < old_w; ++j) {
       result->image[j][old_h - 1 - i] = img->image[i][j];
@@ -654,9 +657,11 @@ Image ImageRotate90CW(const Image img) {
 Image ImageRotate180CW(const Image img) {
   assert(img != NULL);
 
+  //get the original dimensions
   uint32 old_w =img->width;
   uint32 old_h =img->height;
   
+  //create new image with same dimensions(to hold the rotated image)
   Image result = ImageCreate(old_w, old_h);
 
   //copy colors (from ImageCopy)
@@ -665,7 +670,7 @@ Image ImageRotate180CW(const Image img) {
     result->LUT[i] = img->LUT[i];
   }
 
-  //pixels start at (i,j) finish at (j,(old_h-1)-i) 
+  //pixels start at (i,j) finish at ((old_h-1)-i,(old_w-1)-j) since its a 180 degree rotation
   for(uint32 i = 0; i < old_h; i++){
     for (uint32 j = 0; j < old_w; ++j) {
       result->image[old_h - 1 - i][old_w - 1 - j] = img->image[i][j];
@@ -674,7 +679,7 @@ Image ImageRotate180CW(const Image img) {
   
   return result;
 
-  return NULL;
+  
 }
 
 /// Check whether pixel coords (u, v) are inside img.
@@ -708,7 +713,7 @@ static int RegionFillRecAux(Image img, int u, int v, uint16 newLabel, uint16 tar
   if(!ImageIsValidPixel(img,u,v)) return 0;
 
   //Read current pixel 
-  PIXMEM++; //to count that pixel-array was accessed this time for a read
+  PIXMEM++; //increment PIXMEM for reading pixel(implementation testing)
   uint16 current = img->image[v][u]; //image is an array of rows so first paramater has to be v number of rows
 
   //if the current is not the target label, nothing to do
@@ -718,7 +723,7 @@ static int RegionFillRecAux(Image img, int u, int v, uint16 newLabel, uint16 tar
   if(current == newLabel) return 0;
 
   //Set new label 
-  PIXMEM++;//to count that pixel-array was accessed this time for a write
+  PIXMEM++;//increment PIXMEM for writing pixel(implementation testing)
   img->image[v][u]=newLabel;
 
   //number of labeled pictures
@@ -739,7 +744,9 @@ int ImageRegionFillingRecursive(Image img, int u, int v, uint16 label) {
   assert(ImageIsValidPixel(img, u, v));
   assert(label < FIXED_LUT_SIZE);
 
+
   // Determine the label to replace (target)
+  //increment PIXMEM for reading pixel(implementation testing)
   PIXMEM++;
   uint16 target = img->image[v][u];
 
@@ -759,20 +766,20 @@ int ImageRegionFillingWithSTACK(Image img, int u, int v, uint16 label) {
   assert(ImageIsValidPixel(img, u, v));
   assert(label < FIXED_LUT_SIZE);
 
-  // read target label count it also(PIXMEM)
+  // increment PIXMEM for reading pixel(implementation testing)
   PIXMEM++;
   uint16 target = img->image[v][u];
   // If target is already the requested label, nothing to do
   if (target == label) return 0;
 
-  //implement stack max_size=width*height
+  // get original size to implement stack max_size=width*height
   uint32 w =img->width;
   uint32 h = img->height;
 
   //create stack
   Stack* stack = StackCreate(w * h);
 
-  //push pixel
+  //push the first pixel
   PixelCoords firstpixel;
   firstpixel.u = u;
   firstpixel.v = v;
@@ -784,15 +791,15 @@ int ImageRegionFillingWithSTACK(Image img, int u, int v, uint16 label) {
     int x = currentpixel.u;
     int y = currentpixel.v;
 
-    /* bounds check */
+    //check if pixel is in bounds
     if (!ImageIsValidPixel(img, x, y)) continue;
 
-    //read pixel count it also(PIXMEM)
+    //increment PIXMEM for reading pixel(implementation testing)
     PIXMEM++;
     uint16 currentLabel = img->image[y][x];
     if (currentLabel != target) continue;
 
-    //write new label count it also(PIXMEM)
+    //increment PIXMEM for writing pixel(implementation testing)
     img->image[y][x] = label;
     PIXMEM++;
     count++;
@@ -818,19 +825,20 @@ int ImageRegionFillingWithQUEUE(Image img, int u, int v, uint16 label) {
   assert(ImageIsValidPixel(img, u, v));
   assert(label < FIXED_LUT_SIZE);
 
-   // read target label count it also(PIXMEM)
+  // increment PIXMEM for reading pixel(implementation testing)
   PIXMEM++;
   uint16 target = img->image[v][u];
   // If target is already the requested label, nothing to do
   if (target == label) return 0;
 
+  // get original size to implement queue max_size=width*height
   uint32 w = img->width;
   uint32 h = img->height;
 
   //create queue
   Queue* q = QueueCreate(w * h);
 
-  //enqueue pixel
+  //enqueue the firstpixel
   PixelCoords firstpixel;
   firstpixel.u = u;
   firstpixel.v = v;
@@ -843,15 +851,15 @@ int ImageRegionFillingWithQUEUE(Image img, int u, int v, uint16 label) {
     int x = currentpixel.u;
     int y = currentpixel.v;
 
-    /* bounds check */
+    //check if pixel is in bounds
     if (!ImageIsValidPixel(img, x, y)) continue;
 
-    //read pixel count it also(PIXMEM)
+    //increment PIXMEM for reading pixel(implementation testing)
     PIXMEM++;
     uint16 curLabel = img->image[y][x];
     if (curLabel != target) continue;
 
-    //write new label count it also(PIXMEM)
+    //increment PIXMEM for writing pixel(implementation testing)
     img->image[y][x] = label;
     PIXMEM++;
     count++;
@@ -883,6 +891,7 @@ int ImageSegmentation(Image img, FillingFunction fillFunct) {
   assert(img != NULL);
   assert(fillFunct != NULL);
 
+  // get original size
   uint32 w = img->width;
   uint32 h = img->height;
 
@@ -891,7 +900,7 @@ int ImageSegmentation(Image img, FillingFunction fillFunct) {
 
   for (uint32 y = 0; y < h; ++y) {
     for (uint32 x = 0; x < w; ++x) {
-      //read pixel count it also(PIXMEM)
+      //increment PIXMEM for reading pixel(implementation testing)
       PIXMEM++;
       uint16 cur = img->image[y][x];
       if (cur == 0) { //check for WHITE pixel

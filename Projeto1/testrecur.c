@@ -2,43 +2,33 @@
 #include <stdlib.h>
 #include <string.h>
 #include <strings.h>
-#include <ctype.h>
 
 #include "imageRGB.h"
 #include "instrumentation.h"
 
-
-//vou reutilizar o codigo já que é so para test vou testar todas aqui
 int main(int argc, char** argv) {
-  if (argc < 4) {
-    fprintf(stderr, "Usage: %s <file.ppm|file.pbm> <u> <v> [label]\n", argv[0]);
+  if (argc < 2) {
+    fprintf(stderr, "Usage: %s <file.pbm|file.ppm> [method]\n", argv[0]);
     return 1;
   }
 
   const char* path = argv[1];
-  int u = atoi(argv[2]);
-  int v = atoi(argv[3]);
-  int label = 1;
-  if (argc >= 5) label = atoi(argv[4]);
+  const char* method = (argc >= 3) ? argv[2] : "rec";
 
   ImageInit();
 
-  // fazer load da imagem
   Image img = NULL;
-  /* Detectar extensão para evitar chamar o loader errado (que aborta em caso de formato inesperado) copilot*/ 
   const char *dot = strrchr(path, '.');
-  if (dot != NULL) {
-    if (strcasecmp(dot, ".pbm") == 0) {
+  if (dot) {
+    if (strcasecmp(dot, ".pbm") == 0) img = ImageLoadPBM(path);
+    else if (strcasecmp(dot, ".ppm") == 0) img = ImageLoadPPM(path);
+    else {
       img = ImageLoadPBM(path);
-    } else if (strcasecmp(dot, ".ppm") == 0) {
-      img = ImageLoadPPM(path);
-    } else {
-      fprintf(stderr, "Unsupported file extension: %s\n", dot);
-      return 1;
+      if (img == NULL) img = ImageLoadPPM(path);
     }
   } else {
-    fprintf(stderr, "No file extension found. Use .pbm or .ppm\n");
-    return 1;
+    img = ImageLoadPBM(path);
+    if (img == NULL) img = ImageLoadPPM(path);
   }
 
   if (img == NULL) {
@@ -46,25 +36,24 @@ int main(int argc, char** argv) {
     return 1;
   }
 
+  FillingFunction ff = ImageRegionFillingRecursive;
+  if (strcasecmp(method, "stack") == 0) ff = ImageRegionFillingWithSTACK;
+  else if (strcasecmp(method, "queue") == 0) ff = ImageRegionFillingWithQUEUE;
 
- 
+  Image segcopy = ImageCopy(img);
+  int regions = ImageSegmentation(segcopy, ff);
+  printf("%d\n", regions);
 
-  //copia para nao alterar a org
-  Image copy = ImageCopy(img);
-  int labeled = ImageRegionFillingWithSTACK(copy, u, v, (uint16)label);
-  printf("Result (recursive): labeled_pixels = %d\n", labeled);
-
-  //salvar the image
-  char out[1024];
-  snprintf(out, sizeof(out), "%s_stack.ppm", path);
-  if (ImageSavePPM(copy, out) == 0) {
-    printf("Saved: %s\n", out);
-  } else {
-    fprintf(stderr, "Failed to save: %s\n", out);
+  char outseg[1024];
+  snprintf(outseg, sizeof(outseg), "%s_seg_%s.ppm", path, method);
+  if (ImageSavePPM(segcopy, outseg) != 0) {
+    fprintf(stderr, "Failed to save segmented image: %s\n", outseg);
+    ImageDestroy(&segcopy);
+    ImageDestroy(&img);
+    return 1;
   }
 
-  
+  ImageDestroy(&segcopy);
   ImageDestroy(&img);
-  ImageDestroy(&copy);
   return 0;
 }
