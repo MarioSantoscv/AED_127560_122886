@@ -6,24 +6,24 @@
 int main(void) {
   ImageInit();
 
-  Image c = ImageLoadPPM("Basic_human_drawing.ppm");
+  Image c = ImageLoadPBM("newtest.pbm");
   if (c == NULL) {
-    fprintf(stderr, "Failed to load Basic_human_drawing.ppm\n");
+    fprintf(stderr, "Failed to load newtest.pbm\n");
     return 1;
   }
 
   printf("Test rotate180 \n");
-  Image rotated = ImageRotate180CW(c); 
+  Image rotated = ImageRotate90CW(c); 
   if (rotated == NULL) {
-    fprintf(stderr, "ImageRotate180 returned NULL\n");
+    fprintf(stderr, "ImageRotate90CW returned NULL\n");
     ImageDestroy(&c);
     return 1;
   }
 
-  if (ImageSavePPM(rotated, "rotated.ppm") != 0) {
-    fprintf(stderr, "Failed to save rotated.ppm\n");
+  if (ImageSavePPM(rotated, "rotated90.ppm") != 0) {
+    fprintf(stderr, "Failed to save rotated90.ppm\n");
   } else {
-    printf("Saved: rotated.ppm\n");
+    printf("Saved: rotated90.ppm\n");
   }
 
   ImageDestroy(&rotated);
