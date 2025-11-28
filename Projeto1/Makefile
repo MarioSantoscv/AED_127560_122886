@@ -1,6 +1,6 @@
 CFLAGS = -Wall -Wextra -O2 -g
 
-PROGS = imageRGBTest test_isequal testrecur test_rotation
+PROGS = imageRGBTest test_isequal testrecur test_rotation test_regionfill
 
 # Default rule: make all programs
 all: $(PROGS)
@@ -17,6 +17,9 @@ testrecur: testrecur.o imageRGB.o instrumentation.o error.o \
 test_rotation: test_rotation.o imageRGB.o instrumentation.o error.o \
                PixelCoords.o PixelCoordsQueue.o PixelCoordsStack.o
 
+test_regionfill: test_regionfill.o imageRGB.o instrumentation.o error.o \
+          PixelCoords.o PixelCoordsQueue.o PixelCoordsStack.o
+
 # Object dependencies for test sources (headers)
 imageRGBTest.o: imageRGB.h instrumentation.h error.h \
                 PixelCoords.h PixelCoordsQueue.h PixelCoordsStack.h
@@ -29,6 +32,9 @@ testrecur.o: imageRGB.h instrumentation.h error.h \
 
 test_rotation.o: imageRGB.h instrumentation.h error.h \
                  PixelCoords.h PixelCoordsQueue.h PixelCoordsStack.h
+
+test_regionfill.o: imageRGB.h instrumentation.h error.h \
+             PixelCoords.h PixelCoordsQueue.h PixelCoordsStack.h
 
 # Rule to make any .o file dependent upon corresponding .h file
 %.o: %.h

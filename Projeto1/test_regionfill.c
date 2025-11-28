@@ -38,22 +38,12 @@ static int run_segmentation(Image img, FillingFunction ff, const char* label) {
   return regions;
 }
 
-int main(void) {
-  const int W = 50;
-  const int H = 50;
-  const int cx = W/2;
-  const int cy = H/2;
-
-  ImageInit(); // calibrate instrumentation and name counters
-
-  printf("\n--- Region filling performance test: square %dx%d ---\n", W, H);
-
-  // Create base image: background WHITE (single region of size W*H)
-  Image base = ImageCreate((uint32)W, (uint32)H);
-
-  // We'll use a new label for the fill (1 is BLACK already, but any valid label < FIXED_LUT_SIZE works)
-  uint16_t fill_label = 1;
-
+void runTests(Image img, int Cx, int Cy, uint16_t fillLabel) {
+  Image base = img;
+  int cx = Cx;
+  int cy = Cy;
+  uint16_t fill_label = fillLabel;
+  
   // 1) Recursive fill (direct)
   {
     Image img = ImageCopy(base);
@@ -101,8 +91,30 @@ int main(void) {
     run_segmentation(img, ImageRegionFillingWithQUEUE, "Segmentation + QUEUE");
     ImageDestroy(&img);
   }
+}
 
-  ImageDestroy(&base);
+int main(void) {
+  for (size_t i = 1; i < 5; i++)
+  {
+    const int W = 50 * i;
+    const int H = 50 * i;
+    const int cx = W/2;
+    const int cy = H/2;
+
+    ImageInit(); // calibrate instrumentation and name counters
+
+    printf("\n--- Region filling performance test: square %dx%d ---\n", W, H);
+
+    // Create base image: background WHITE (single region of size W*H)
+    Image base = ImageCreate((uint32)W, (uint32)H);
+
+    // We'll use a new label for the fill (1 is BLACK already, but any valid label < FIXED_LUT_SIZE works)
+    uint16_t fill_label = 1;
+
+    runTests(base, cx, cy, fill_label);
+    ImageDestroy(&base);
+  }
+
 
   return 0;
 }
