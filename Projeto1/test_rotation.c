@@ -3,6 +3,7 @@
 
 #include "imageRGB.h"
 
+
 int main(void) {
   ImageInit();
 
