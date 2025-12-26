@@ -35,15 +35,36 @@
 // graph vertex not in the set is adjacent to a graph vertex in the set
 //
 int GraphIsDominatingSet(const Graph* g, IndicesSet* vertSet) {
+
   assert(g != NULL);
   assert(GraphIsDigraph(g) == 0);
   assert(IndicesSetIsEmpty(vertSet) == 0);
 
-  //
-  // TO BE COMPLETED
-  //
+  // iterar pelo grafo
+  for (unsigned int v = 0; v < g->indicesRange; v++) {
+    if (!IndicesSetContains(g->verticesSet, v)) continue; // só vértices existentes
+    if (IndicesSetContains(vertSet, v)) continue; // vértice faz parte do conjunto dominante
 
-  return 0;
+    // v esta fora entao temos que verificar se é dominado ou não
+    IndicesSet* adj = GraphGetSetAdjacentsTo(g, v);
+
+    int dominado = 0;
+    // Procura se existe pelo menos um adjacente que está no vertSet
+    for (unsigned int u = 0; u < g->indicesRange; u++) {
+      if (IndicesSetContains(adj, u) && IndicesSetContains(vertSet, u)) {
+        dominado = 1;
+        break;
+      }
+    }
+
+    IndicesSetDestroy(&adj);
+
+    // Se não tem vizinho no vertSet, não é conjunto dominante
+    if (!dominado) return 0;
+  }
+
+  //se for dominating set
+  return 1;
 }
 
 //
@@ -56,13 +77,31 @@ int GraphIsDominatingSet(const Graph* g, IndicesSet* vertSet) {
 IndicesSet* GraphComputeMinDominatingSet(const Graph* g) {
   assert(g != NULL);
   assert(GraphIsDigraph(g) == 0);
+  uint16_t totalVertices = GraphGetVertexRange(g);
+  int menorTamanho = totalVertices + 1;
+  IndicesSet* result = IndicesSetCreateEmpty(totalVertices);
 
-  //
-  // TO BE COMPLETED
-  //
+  IndicesSet* conjuntoTeste = IndicesSetCreateEmpty(totalVertices);
 
-  // Change this according to your algorithm
-  IndicesSet* result = IndicesSetCreateEmpty(GraphGetVertexRange(g));
+  while (1) {
+    int tamanhoAtual = IndicesSetGetNumElems(conjuntoTeste);
+
+    // Ignora conjuntos vazios e maiores do que o melhor já achado
+    if (tamanhoAtual > 0 && tamanhoAtual < menorTamanho) {
+
+      if (GraphIsDominatingSet(g, conjuntoTeste)) {
+        // Encontramos um melhor
+        IndicesSetDestroy(&result);
+        result = IndicesSetCreateCopy(conjuntoTeste);
+        menorTamanho = tamanhoAtual;
+      }
+    }
+
+    // Avançar para o proximo subconjunto
+    if (!IndicesSetNextSubset(conjuntoTeste)) break;
+  }
+
+  IndicesSetDestroy(&conjuntoTeste);
 
   return result;
 }
