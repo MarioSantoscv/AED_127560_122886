@@ -41,8 +41,8 @@ int GraphIsDominatingSet(const Graph* g, IndicesSet* vertSet) {
   assert(IndicesSetIsEmpty(vertSet) == 0);
 
   // iterar pelo grafo
-  for (unsigned int v = 0; v < g->indicesRange; v++) {
-    if (!IndicesSetContains(g->verticesSet, v)) continue; // só vértices existentes
+  for (unsigned int v = 0; v < GraphGetVertexRange(g); v++) {
+    if (!IndicesSetContains(GraphGetSetVertices(g), v)) continue; // só vértices existentes
     if (IndicesSetContains(vertSet, v)) continue; // vértice faz parte do conjunto dominante
 
     // v esta fora entao temos que verificar se é dominado ou não
@@ -50,7 +50,7 @@ int GraphIsDominatingSet(const Graph* g, IndicesSet* vertSet) {
 
     int dominado = 0;
     // Procura se existe pelo menos um adjacente que está no vertSet
-    for (unsigned int u = 0; u < g->indicesRange; u++) {
+    for (unsigned int u = 0; u < GraphGetVertexRange(g); u++) {
       if (IndicesSetContains(adj, u) && IndicesSetContains(vertSet, u)) {
         dominado = 1;
         break;
@@ -117,12 +117,49 @@ IndicesSet* GraphComputeMinWeightDominatingSet(const Graph* g) {
   assert(g != NULL);
   assert(GraphIsDigraph(g) == 0);
 
-  //
-  // TO BE COMPLETED
-  //
+  unsigned int range = GraphGetVertexRange(g);
+
+  // Pesos dos vértices
+  double* weights = GraphComputeVertexWeights(g);
+
+  double bestWeight = -1.0;
+  IndicesSet* result = IndicesSetCreateEmpty(range);
+
+  IndicesSet* testSet = IndicesSetCreateEmpty(range);
+
+  while (1) {
+    int size = IndicesSetGetNumElems(testSet);
+
+    if (size > 0) {
+      if (GraphIsDominatingSet(g, testSet)) {
+
+        // Calcular peso total do subconjunto
+        double totalWeight = 0.0;
+        for (unsigned int v = 0; v < range; v++) {
+          if (IndicesSetContains(testSet, v)) {
+            totalWeight += weights[v];
+          }
+        }
+
+        // Atualizar melhor solução
+        if (bestWeight < 0 || totalWeight < bestWeight) {
+          IndicesSetDestroy(&result);
+          result = IndicesSetCreateCopy(testSet);
+          bestWeight = totalWeight;
+        }
+      }
+    }
+
+    // Próximo subconjunto
+    if (!IndicesSetNextSubset(testSet)) break;
+  }
+
+  IndicesSetDestroy(&testSet);
+  free(weights);
+
 
   // Change this according to your algorithm
-  IndicesSet* result = IndicesSetCreateEmpty(GraphGetVertexRange(g));
+  //IndicesSet* result = IndicesSetCreateEmpty(GraphGetVertexRange(g));
 
   return result;
 }
