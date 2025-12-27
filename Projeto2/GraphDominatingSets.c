@@ -119,12 +119,10 @@ IndicesSet* GraphComputeMinWeightDominatingSet(const Graph* g) {
 
   unsigned int range = GraphGetVertexRange(g);
 
-  // Pesos dos vértices
   double* weights = GraphComputeVertexWeights(g);
+  double currentMinWeight = -1.0;
 
-  double bestWeight = -1.0;
   IndicesSet* result = IndicesSetCreateEmpty(range);
-
   IndicesSet* testSet = IndicesSetCreateEmpty(range);
 
   while (1) {
@@ -133,7 +131,7 @@ IndicesSet* GraphComputeMinWeightDominatingSet(const Graph* g) {
     if (size > 0) {
       if (GraphIsDominatingSet(g, testSet)) {
 
-        // Calcular peso total do subconjunto
+        // Calcula o peso total
         double totalWeight = 0.0;
         for (unsigned int v = 0; v < range; v++) {
           if (IndicesSetContains(testSet, v)) {
@@ -141,16 +139,16 @@ IndicesSet* GraphComputeMinWeightDominatingSet(const Graph* g) {
           }
         }
 
-        // Atualizar melhor solução
-        if (bestWeight < 0 || totalWeight < bestWeight) {
+        // Atualizar melhor solução se houver
+        if (currentMinWeight < 0 || totalWeight < currentMinWeight) {
           IndicesSetDestroy(&result);
           result = IndicesSetCreateCopy(testSet);
-          bestWeight = totalWeight;
+          currentMinWeight = totalWeight;
         }
       }
     }
 
-    // Próximo subconjunto
+    // Próximo
     if (!IndicesSetNextSubset(testSet)) break;
   }
 
