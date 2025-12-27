@@ -74,6 +74,7 @@ int GraphIsDominatingSet(const Graph* g, IndicesSet* vertSet) {
 // using an EXHAUSTIVE SEARCH approach
 // Return the/a dominating set
 //
+
 IndicesSet* GraphComputeMinDominatingSet(const Graph* g) {
   assert(g != NULL);
   assert(GraphIsDigraph(g) == 0);
@@ -84,11 +85,13 @@ IndicesSet* GraphComputeMinDominatingSet(const Graph* g) {
   IndicesSet* conjuntoTeste = IndicesSetCreateEmpty(totalVertices);
 
   while (1) {
+    InstrCount[0]++; // Contador de memops : chamada uma vez que chamamos a indicesSetGetNumElems
     int tamanhoAtual = IndicesSetGetNumElems(conjuntoTeste);
 
     // Ignora conjuntos vazios e maiores do que o melhor já achado
     if (tamanhoAtual > 0 && tamanhoAtual < menorTamanho) {
 
+      InstrCount[1]++; // Contador de adds uma vez que chamamos a GraphIsDominatingSet
       if (GraphIsDominatingSet(g, conjuntoTeste)) {
         // Encontramos um melhor
         IndicesSetDestroy(&result);
@@ -97,6 +100,7 @@ IndicesSet* GraphComputeMinDominatingSet(const Graph* g) {
       }
     }
 
+    InstrCount[0]++; // Contador de memops : chamada uma vez que chamamos a IndicesSetNextSubset
     // Avançar para o proximo subconjunto
     if (!IndicesSetNextSubset(conjuntoTeste)) break;
   }
