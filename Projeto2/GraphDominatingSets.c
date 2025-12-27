@@ -114,6 +114,12 @@ IndicesSet* GraphComputeMinDominatingSet(const Graph* g) {
 // Return the dominating set
 //
 IndicesSet* GraphComputeMinWeightDominatingSet(const Graph* g) {
+
+  //instrumentation
+  InstrName[0] = "memops";
+  InstrName[1] = "adds";
+  InstrCalibrate();
+  //
   assert(g != NULL);
   assert(GraphIsDigraph(g) == 0);
 
@@ -134,6 +140,12 @@ IndicesSet* GraphComputeMinWeightDominatingSet(const Graph* g) {
         // Calcula o peso total
         double totalWeight = 0.0;
         for (unsigned int v = 0; v < range; v++) {
+          //instrumentation
+          InstrCount[0] += 3;  // to count array acesses
+          InstrCount[1] += 1;  // to count addition
+          //a[k] = a[i] + a[j];
+          //
+
           if (IndicesSetContains(testSet, v)) {
             totalWeight += weights[v];
           }
@@ -155,9 +167,9 @@ IndicesSet* GraphComputeMinWeightDominatingSet(const Graph* g) {
   IndicesSetDestroy(&testSet);
   free(weights);
 
-
-  // Change this according to your algorithm
-  //IndicesSet* result = IndicesSetCreateEmpty(GraphGetVertexRange(g));
+  //instrumentation
+  InstrPrint();
+  //
 
   return result;
 }
