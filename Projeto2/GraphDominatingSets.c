@@ -76,6 +76,7 @@ int GraphIsDominatingSet(const Graph* g, IndicesSet* vertSet) {
 //
 
 IndicesSet* GraphComputeMinDominatingSet(const Graph* g) {
+ 
   assert(g != NULL);
   assert(GraphIsDigraph(g) == 0);
   uint16_t totalVertices = GraphGetVertexRange(g);
@@ -119,10 +120,7 @@ IndicesSet* GraphComputeMinDominatingSet(const Graph* g) {
 //
 IndicesSet* GraphComputeMinWeightDominatingSet(const Graph* g) {
 
-  //instrumentation
-  InstrName[0] = "memops";
-  InstrName[1] = "adds";
-  InstrCalibrate();
+ 
   //
   assert(g != NULL);
   assert(GraphIsDigraph(g) == 0);
@@ -170,10 +168,6 @@ IndicesSet* GraphComputeMinWeightDominatingSet(const Graph* g) {
 
   IndicesSetDestroy(&testSet);
   free(weights);
-
-  //instrumentation
-  InstrPrint();
-  //
 
   return result;
 }

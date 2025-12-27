@@ -1,11 +1,6 @@
-# To compile all programs, run:
-#   make
-#
-# AED, UA, 2025
-
 CFLAGS += -g -Wall -Wextra
 
-TARGETS = TestDominatingSets TestGraphBasics TestIndicesSet
+TARGETS = TestDominatingSets TestGraphBasics TestIndicesSet TestMinDomAuto
 
 all: $(TARGETS)
 
@@ -18,7 +13,9 @@ TestGraphBasics: TestGraphBasics.o Graph.o SortedList.o \
 
 TestIndicesSet: TestIndicesSet.o IndicesSet.o instrumentation.o
 
-# Dependencies of source files
+TestMinDomAuto: TestMinDomAuto.o Graph.o \
+  GraphDominatingSets.o SortedList.o \
+  IndicesSet.o instrumentation.o
 
 Graph.o: Graph.c Graph.h SortedList.h IndicesSet.h instrumentation.h
 
@@ -39,6 +36,9 @@ TestDominatingSets.o: TestDominatingSets.c Graph.h GraphDominatingSets.h \
 TestGraphBasics.o: TestGraphBasics.c Graph.h IndicesSet.h instrumentation.h 
 
 TestIndicesSet.o: TestIndicesSet.c IndicesSet.h instrumentation.h
+
+TestMinDomAuto.o: TestMinDomAuto.c Graph.h GraphDominatingSets.h \
+  IndicesSet.h instrumentation.h
 
 clean:
 	rm -f *.o
