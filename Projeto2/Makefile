@@ -1,6 +1,6 @@
 CFLAGS += -g -Wall -Wextra
 
-TARGETS = TestDominatingSets TestGraphBasics TestIndicesSet TestMinDomAuto
+TARGETS = TestDominatingSets TestGraphBasics TestIndicesSet TestMinDomAuto TestMinWeightDomAuto
 
 all: $(TARGETS)
 
@@ -14,6 +14,10 @@ TestGraphBasics: TestGraphBasics.o Graph.o SortedList.o \
 TestIndicesSet: TestIndicesSet.o IndicesSet.o instrumentation.o
 
 TestMinDomAuto: TestMinDomAuto.o Graph.o \
+  GraphDominatingSets.o SortedList.o \
+  IndicesSet.o instrumentation.o
+
+TestMinWeightDomAuto: TestMinWeightDomAuto.o Graph.o \
   GraphDominatingSets.o SortedList.o \
   IndicesSet.o instrumentation.o
 
@@ -38,6 +42,9 @@ TestGraphBasics.o: TestGraphBasics.c Graph.h IndicesSet.h instrumentation.h
 TestIndicesSet.o: TestIndicesSet.c IndicesSet.h instrumentation.h
 
 TestMinDomAuto.o: TestMinDomAuto.c Graph.h GraphDominatingSets.h \
+  IndicesSet.h instrumentation.h
+
+TestMinWeightDomAuto.o: TestMinWeightDomAuto.c Graph.h GraphDominatingSets.h \
   IndicesSet.h instrumentation.h
 
 clean:

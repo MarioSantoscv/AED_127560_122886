@@ -119,9 +119,6 @@ IndicesSet* GraphComputeMinDominatingSet(const Graph* g) {
 // Return the dominating set
 //
 IndicesSet* GraphComputeMinWeightDominatingSet(const Graph* g) {
-
- 
-  //
   assert(g != NULL);
   assert(GraphIsDigraph(g) == 0);
 
@@ -134,20 +131,15 @@ IndicesSet* GraphComputeMinWeightDominatingSet(const Graph* g) {
   IndicesSet* testSet = IndicesSetCreateEmpty(range);
 
   while (1) {
+    InstrCount[0]++; // Contador de memops : chamada uma vez que chamamos a indicesSetGetNumElems
     int size = IndicesSetGetNumElems(testSet);
 
     if (size > 0) {
+      InstrCount[1]++; // Contador de adds uma vez que chamamos a GraphIsDominatingSet
       if (GraphIsDominatingSet(g, testSet)) {
-
         // Calcula o peso total
         double totalWeight = 0.0;
         for (unsigned int v = 0; v < range; v++) {
-          //instrumentation
-          InstrCount[0] += 3;  // to count array acesses
-          InstrCount[1] += 1;  // to count addition
-          //a[k] = a[i] + a[j];
-          //
-
           if (IndicesSetContains(testSet, v)) {
             totalWeight += weights[v];
           }
@@ -161,7 +153,7 @@ IndicesSet* GraphComputeMinWeightDominatingSet(const Graph* g) {
         }
       }
     }
-
+    InstrCount[0]++; // Contador de memops : chamada uma vez que chamamos a IndicesSetNextSubset
     // Próximo
     if (!IndicesSetNextSubset(testSet)) break;
   }
