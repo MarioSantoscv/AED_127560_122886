@@ -1,6 +1,7 @@
 CFLAGS += -g -Wall -Wextra
 
-TARGETS = TestDominatingSets TestGraphBasics TestIndicesSet TestMinDomAuto TestMinWeightDomAuto
+TARGETS = TestDominatingSets TestGraphBasics TestIndicesSet \
+          TestMinDomAuto TestMinWeightDomAuto ComplexTesting
 
 all: $(TARGETS)
 
@@ -18,6 +19,10 @@ TestMinDomAuto: TestMinDomAuto.o Graph.o \
   IndicesSet.o instrumentation.o
 
 TestMinWeightDomAuto: TestMinWeightDomAuto.o Graph.o \
+  GraphDominatingSets.o SortedList.o \
+  IndicesSet.o instrumentation.o
+
+ComplexTesting: ComplexTesting.o Graph.o \
   GraphDominatingSets.o SortedList.o \
   IndicesSet.o instrumentation.o
 
@@ -44,8 +49,11 @@ TestIndicesSet.o: TestIndicesSet.c IndicesSet.h instrumentation.h
 TestMinDomAuto.o: TestMinDomAuto.c Graph.h GraphDominatingSets.h \
   IndicesSet.h instrumentation.h
 
-TestMinWeightDomAuto.o: TestMinWeightDomAuto.c Graph.h GraphDominatingSets.h \
-  IndicesSet.h instrumentation.h
+TestMinWeightDomAuto.o: TestMinWeightDomAuto.c Graph.h \
+  GraphDominatingSets.h IndicesSet.h instrumentation.h
+
+ComplexTesting.o: ComplexTesting.c Graph.h \
+  GraphDominatingSets.h IndicesSet.h instrumentation.h
 
 clean:
 	rm -f *.o

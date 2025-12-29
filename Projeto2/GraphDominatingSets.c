@@ -35,17 +35,19 @@
 // graph vertex not in the set is adjacent to a graph vertex in the set
 //
 int GraphIsDominatingSet(const Graph* g, IndicesSet* vertSet) {
-
   assert(g != NULL);
   assert(GraphIsDigraph(g) == 0);
   assert(IndicesSetIsEmpty(vertSet) == 0);
 
+ 
+  IndicesSet* allVertices = GraphGetSetVertices(g);
+
   // iterar pelo grafo
   for (unsigned int v = 0; v < GraphGetVertexRange(g); v++) {
-    if (!IndicesSetContains(GraphGetSetVertices(g), v)) continue; // só vértices existentes
+    if (!IndicesSetContains(allVertices, v)) continue; // só vértices existentes
     if (IndicesSetContains(vertSet, v)) continue; // vértice faz parte do conjunto dominante
 
-    // v esta fora entao temos que verificar se é dominado ou não
+    // v está fora, então temos que verificar se é dominado ou não
     IndicesSet* adj = GraphGetSetAdjacentsTo(g, v);
 
     int dominado = 0;
@@ -60,10 +62,15 @@ int GraphIsDominatingSet(const Graph* g, IndicesSet* vertSet) {
     IndicesSetDestroy(&adj);
 
     // Se não tem vizinho no vertSet, não é conjunto dominante
-    if (!dominado) return 0;
+    if (!dominado) {
+      IndicesSetDestroy(&allVertices); // Free before returning
+      return 0;
+    }
   }
 
-  //se for dominating set
+  IndicesSetDestroy(&allVertices);
+
+  // se for dominating set
   return 1;
 }
 
@@ -74,11 +81,10 @@ int GraphIsDominatingSet(const Graph* g, IndicesSet* vertSet) {
 // using an EXHAUSTIVE SEARCH approach
 // Return the/a dominating set
 //
-
 IndicesSet* GraphComputeMinDominatingSet(const Graph* g) {
- 
   assert(g != NULL);
   assert(GraphIsDigraph(g) == 0);
+
   uint16_t totalVertices = GraphGetVertexRange(g);
   int menorTamanho = totalVertices + 1;
   IndicesSet* result = IndicesSetCreateEmpty(totalVertices);
@@ -91,7 +97,6 @@ IndicesSet* GraphComputeMinDominatingSet(const Graph* g) {
 
     // Ignora conjuntos vazios e maiores do que o melhor já achado
     if (tamanhoAtual > 0 && tamanhoAtual < menorTamanho) {
-
       InstrCount[1]++; // Contador de adds uma vez que chamamos a GraphIsDominatingSet
       if (GraphIsDominatingSet(g, conjuntoTeste)) {
         // Encontramos um melhor
