@@ -22,7 +22,7 @@ Desenvolvimento e extensão de um TAD para grafos, com implementação de opera�
 ## Classificações
 
 - **Projeto 1:** 17 valores
-- **Projeto 2:** 17 valores
+- **Projeto 2:** 16 valores
 
 ## Autores
 
